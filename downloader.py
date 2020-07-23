@@ -1,5 +1,16 @@
 from pytube import YouTube
-from lxml import etree
+from bs4 import BeautifulSoup
+import requests
+from pytube import Playlist
+
+def scrap_info(url):
+    r = requests.get(url)
+    s = BeautifulSoup(r.text, "html.parser")
+    title = s.find('title').text.strip('- YouTube')
+    # views = s.find("div", class_="watch-view-count").text
+    # likes = s.find("span", class_="like-button-renderer").span.button.text
+    data = {'title': title}
+    return title
 
 def download_audio_from_user_input():
     url = input("Enter your url to download: ")
@@ -30,17 +41,27 @@ def download_from_list():
         for i in video_list:
             yt = YouTube(i)
             dw = yt.streams.filter(only_audio=True).first()
-            print("Downloading ....")
+            title = yt.title
             dw.download('/Users/akilov/Desktop/mp3/Pytube_Download')
-            print("Done!")
+            print(f" Audio - {title}  ..... Downloaded")
     elif user == 2:
         for i in video_list:
             yt = YouTube(i)
-            print("Downloading....")
+            title = yt.title
             yt.streams.first().download('/Users/akilov/Desktop/mp3/Pytube_Download')
-            print("Done!")
+            print(f" Video with views - {title}  .....Downloaded")
     return
+
+# def download_playlist():
+#     pl_list = input("Enter playlist url: ")
+#     playlist = Playlist(pl_list)
+#     # pl.download_all()
+#     # or if you want to download in a specific directory
+#     print(playlist)
+#     print(playlist.video_urls)
+#     # pl.download_all()
 
 # download_audio_from_user_input()
 # download_video_from_user_input()
 download_from_list()
+# download_playlist()
