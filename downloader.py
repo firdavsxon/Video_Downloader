@@ -3,6 +3,7 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
+from youtube_dl import YoutubeDL
 
 def download_audio(url, destination):
     if 'http' not in url:
@@ -76,8 +77,11 @@ def download_from_list():
 
 def download_playlist():
     pl_list = input("Enter playlist url: ")
+    if not 'https' in pl_list:
+        pl_list = f'https://www.youtube.com/playlist?list={pl_list}'
     playlist = Playlist(pl_list)
     playlist._video_regex = re.compile(r"\"url\":\"(/watch\?v=[\w-]*)")
+    count = len(playlist)
     page = requests.get(pl_list)
     soup = BeautifulSoup(page.content, 'html.parser')
     playlist_name = soup.find('title').text.strip(' - YouTube')
@@ -88,7 +92,7 @@ def download_playlist():
         print("created folder : ", MYDIR)
     else:
         print(MYDIR, "folder already exists.")
-    audio_or_video = int(input("Download video as\n 1. Audio\n 2. Video?\n"
+    audio_or_video = int(input(f"{count} Videos in playlist.\n\nDownload video as\n 1. Audio\n 2. Video?\n"
                            "Please choose format: "))
     if audio_or_video == 1:
         for url in playlist:
